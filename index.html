@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Complex Clipped Shape with Curves</title>
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background-color: #222;
+      font-family: sans-serif;
+      color: white;
+    }
+
+    .container {
+      width: 80vw; /* Responsive width */
+      max-width: 800px; /* Optional: cap max width */
+      height: 300px; /* Fixed height for illustration, can be dynamic */
+      background: #444;
+      margin: 40px auto;
+      position: relative;
+      overflow: hidden; /* Important for clip-path */
+      box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+    }
+
+    .boxed {
+      width: 100%; /* Fill container */
+      height: 100%; /* Fill container */
+      background: url("https://picsum.photos/800/600?random=1") center/cover no-repeat;
+      clip-path: url(#complex-clip);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2em;
+      font-weight: bold;
+      color: rgba(255, 255, 255, 0.9);
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    }
+
+    /* Just for visual reference */
+    h1 {
+      margin-top: 20px;
+      font-size: 1.5em;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Check out this curvy clipped image!</h1>
+
+  <div class="container">
+    <div class="boxed">
+      Awesome Curves!
+    </div>
+
+    <svg width="0" height="0">
+      <defs>
+        <clipPath id="complex-clip" clipPathUnits="objectBoundingBox">
+          <path id="complexPath" />
+        </clipPath>
+      </defs>
+    </svg>
+  </div>
+
+  <script>
+   function updateComplexClipPath() {
+  const container = document.querySelector(".container");
+  const width = container.offsetWidth;
+  const height = container.offsetHeight;
+
+  // These values are relative to the bounding box (0 to 1)
+  // We'll define control points for our curves
+
+  // A slight horizontal padding/inset for the waves
+  const insetX = 0.05;
+  const startX = insetX;
+  const endX = 1 - insetX;
+
+  // Vertical limits of our shape
+  const topY = 0.15; // Starting high enough
+  const bottomY = 0.85; // Ending low enough
+
+  // Number of waves
+  const numWaves = 3;
+  const waveAmplitude = 0.05; // How tall the waves are (relative to height)
+
+  let pathData = `M ${startX},${topY}`; // Start at top-left
+
+  // Generate top wave
+  for (let i = 0; i < numWaves; i++) {
+    const segmentWidth = (endX - startX) / numWaves;
+    const currentX = startX + i * segmentWidth;
+    const nextX = startX + (i + 1) * segmentWidth;
+    const midX = currentX + segmentWidth / 2;
+
+    // Control points for the cubic bezier curve
+    // The Y coordinate alternates to create the wave effect
+    const cp1Y = topY + (i % 2 === 0 ? waveAmplitude : -waveAmplitude);
+    const cp2Y = topY + (i % 2 === 0 ? -waveAmplitude : waveAmplitude);
+
+    pathData += ` C ${midX},${cp1Y} ${midX},${cp2Y} ${nextX},${topY}`;
+  }
+
+  pathData += ` L ${endX},${bottomY}`; // Line down to bottom-right
+
+  // Generate bottom wave (reversed direction)
+  for (let i = numWaves - 1; i >= 0; i--) {
+    const segmentWidth = (endX - startX) / numWaves;
+    const currentX = startX + (i + 1) * segmentWidth;
+    const prevX = startX + i * segmentWidth;
+    const midX = prevX + segmentWidth / 2; // Midpoint for the segment
+
+    // Control points for the cubic bezier curve
+    const cp1Y = bottomY + (i % 2 === 0 ? -waveAmplitude : waveAmplitude);
+    const cp2Y = bottomY + (i % 2 === 0 ? waveAmplitude : -waveAmplitude);
+
+    pathData += ` C ${midX},${cp1Y} ${midX},${cp2Y} ${prevX},${bottomY}`;
+  }
+
+  pathData += ` Z`; // Close the path
+
+  document.getElementById("complexPath").setAttribute("d", pathData);
+}
+
+// Attach to resize and call initially
+window.addEventListener("resize", updateComplexClipPath);
+updateComplexClipPath();
+
+  </script>
+
+</body>
+</html>
