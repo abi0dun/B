@@ -1,91 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="description" content="Àpẹẹrẹ ojúewé HTML fún èdè Yorùbá">
-    <meta name="author" content="Rex Emperor">
-    <title>Àpẹẹrẹ HTML Yorùbá</title>
-<style>
-  body {
-    margin: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    background: #222;
-  }
+  <meta charset="UTF-8" />
+  <style>
+    .container {
+      width: 80vw;
+      height: 250px; /* Fixed height for illustration */
+      max-width: 800px;
+      background: #444;
+      margin: 40px auto;
+      position: relative;
+    }
 
-  .container {
-    width: 350px;      /* responsive width */
-    height: 180px;   /* fixed height */
-    background: #444;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .boxed {
-    width: 90%;
-    height: 100%;
-    background: url("https://picsum.photos/800/600?random=9") center/cover no-repeat;
-    clip-path: url(#clip-box);
-  }
-</style>
+    .boxed {
+      width: 100%;
+      height: 100%;
+      background: url("https://picsum.photos/800/600?random=2") center/cover no-repeat;
+      clip-path: url(#scaled-clip);
+    }
+  </style>
 </head>
 <body>
 
-<div class="container">
-  <div class="boxed"></div>
+  <div class="container">
+    <div class="boxed"></div>
 
-  <svg width="0" height="0">
-    <defs>
-      <clipPath id="clip-box" clipPathUnits="objectBoundingBox">
-        <path id="boxPath" />
-      </clipPath>
-    </defs>
-  </svg>
-</div>
+    <svg width="0" height="0">
+      <defs>
+        <clipPath id="scaled-clip" clipPathUnits="objectBoundingBox">
+          <path id="scaledPath" />
+        </clipPath>
+      </defs>
+    </svg>
+  </div>
 
-<script>
-function updateClipPath() {
-  // Container size
-  const container = document.querySelector(".container");
-  const width = container.offsetWidth;
-  const height = container.offsetHeight;
+  <script>
+   function updateScaledClipPath() {
+    // 1. Define the complex path using the 0-to-1 objectBoundingBox coordinates
+    // This is the static data you asked to convert to objectBoundingBox
+    const objectBoundingBoxPath = `
+        M 0.00661458325, 0.10583333 
+        V 0.15874999 
+        A 0.019843749, 0.079374996 45 0 0 0.026458325, 0.23812498 
+        H 0.1157551975 
+        C 0.1157551975, 0.20159364 0.1231588225, 0.17197915 0.1322916575, 0.17197915 
+        C 0.14142449, 0.17197915 0.148828115, 0.20159365 0.148828115, 0.23812498 
+        H 0.25796875 
+        V 0.13229166 
+        C 0.25796875, 0.16151674 0.25204585, 0.18520834 0.2447395775, 0.18520833 
+        C 0.2374332975, 0.18520833 0.2315104125, 0.16151673 0.2315104125, 0.13229166 
+        C 0.2315104125, 0.10306659 0.2374333125, 0.079374996 0.2447395775, 0.079374998 
+        C 0.25204585, 0.079374984 0.25796875, 0.10306657 0.25796875, 0.13229166 
+        V 0.026458333 
+        H 0.0264583325 
+        A 0.0198437485, 0.079374994 135 0 0 0.00661458325, 0.10583333 
+        Z
+    `;
 
-  // Original SVG path from your file
-  const pathData = `
-    M 0.24835,0.31638 
-    L 0.24835,0.42038 
-    C 0.24835,0.44993 0.28261,0.47415 0.32449,0.47415 
-    L 0.50955,0.47415 
-    C 0.50943,0.47395 0.50933,0.47375 0.50932,0.47355 
-    C 0.50932,0.46375 0.52083,0.45575 0.53478,0.45575 
-    C 0.54873,0.45575 0.56024,0.46375 0.56024,0.47355 
-    C 0.56021,0.47375 0.56011,0.47395 0.55999,0.47415 
-    L 0.74651,0.47415 
-    C 0.78710,0.47415 0.81976,0.45101 0.81976,0.42238 
-    L 0.81976,0.31638 
-    L 0.81953,0.31638 
-    C 0.81361,0.32134 0.70306,0.32529 0.56776,0.32529 
-    C 0.43246,0.32529 0.32191,0.32134 0.31599,0.31638 
-    L 0.24835,0.31638 
-    Z 
-    M 0.72088,0.33828 
-    C 0.73593,0.33828 0.74856,0.35091 0.74856,0.36596 
-    C 0.74856,0.38101 0.73593,0.39364 0.72088,0.39364 
-    C 0.70583,0.39364 0.69320,0.38101 0.69320,0.36596 
-    C 0.69320,0.35091 0.70583,0.33828 0.72088,0.33828 
-  `;
-
-  document.getElementById("boxPath").setAttribute("d", pathData);
+    // 2. Simply apply the 0-to-1 path data
+    document.getElementById("scaledPath").setAttribute("d", objectBoundingBoxPath);
+    
+    // NOTE: Because clipPathUnits="objectBoundingBox" is used, 
+    // the browser handles the continuous scaling automatically.
+    // The path data is proportional (0 to 1), so no manual width/height calculations are needed.
 }
 
-// Call initially and on resize
-window.addEventListener("resize", updateClipPath);
-updateClipPath();
-</script>
+window.addEventListener("resize", updateScaledClipPath);
+updateScaledClipPath(); // Initial call
+
+  </script>
 
 </body>
 </html>
