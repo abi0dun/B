@@ -2,43 +2,66 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Centered Complex Clipped Shape</title>
   <style>
+    body {
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background-color: #222;
+      font-family: sans-serif;
+    }
+
     .container {
       width: 80vw;
-      height: 250px; /* Fixed height for illustration */
+      height: 250px; 
       max-width: 800px;
       background: #444;
       margin: 40px auto;
       position: relative;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+      overflow: hidden; 
     }
 
     .boxed {
       width: 100%;
       height: 100%;
-      background: url("https://picsum.photos/800/600?random=2") center/cover no-repeat;
-      clip-path: url(#scaled-clip);
+      background: url("https://picsum.photos/800/600?random=3") center/cover no-repeat;
+      clip-path: url(#centered-clip);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2em;
+      font-weight: bold;
+      color: rgba(255, 255, 255, 0.9);
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
     }
   </style>
 </head>
 <body>
 
   <div class="container">
-    <div class="boxed"></div>
+    <div class="boxed">
+      Centered Complex Clip!
+    </div>
 
     <svg width="0" height="0">
       <defs>
-        <clipPath id="scaled-clip" clipPathUnits="objectBoundingBox">
-          <path id="scaledPath" />
+        <clipPath id="centered-clip" clipPathUnits="objectBoundingBox">
+          <path id="centeredPath" transform="translate(0, 0)" />
         </clipPath>
       </defs>
     </svg>
   </div>
 
   <script>
-   function updateScaledClipPath() {
-    // 1. Define the complex path using the 0-to-1 objectBoundingBox coordinates
-    // This is the static data you asked to convert to objectBoundingBox
-    const objectBoundingBoxPath = `
+   function updateCenteredClipPath() {
+    // Original path data (0-to-1 objectBoundingBox coordinates)
+    const originalPathData = `
         M 0.00661458325, 0.10583333 
         V 0.15874999 
         A 0.019843749, 0.079374996 45 0 0 0.026458325, 0.23812498 
@@ -57,16 +80,40 @@
         Z
     `;
 
-    // 2. Simply apply the 0-to-1 path data
-    document.getElementById("scaledPath").setAttribute("d", objectBoundingBoxPath);
+    // 1. Calculate the shape's original boundaries (in 0-1 units)
+    const xMin = 0.00661458; 
+    const xMax = 0.25796875;
+    const shapeWidth = xMax - xMin; // = 0.25135417
+
+    // 2. Calculate the centering shift (relative to the container 0-1 width)
+    // Shift = (Container Width (1) - Shape Width) / 2 - Shape's current X start position
+    const totalShiftX = (1 - shapeWidth) / 2;
     
-    // NOTE: Because clipPathUnits="objectBoundingBox" is used, 
-    // the browser handles the continuous scaling automatically.
-    // The path data is proportional (0 to 1), so no manual width/height calculations are needed.
+    // We only need the translation to center the shape from X=0. 
+    // Since the path is NOT defined relative to X=0, we need to subtract its starting point.
+    const translateX = totalShiftX - xMin; 
+
+    // The shape is already vertically centered within its original 100px SVG space 
+    // (min y is 0.026, max y is 0.238). To perfectly center it vertically 
+    // within the container (1.0 height), we calculate the vertical shift.
+    const yMin = 0.026458333;
+    const yMax = 0.23812498;
+    const shapeHeight = yMax - yMin; // ~0.2116
+    const totalShiftY = (1 - shapeHeight) / 2;
+    const translateY = totalShiftY - yMin;
+
+
+    // 3. Apply the path data and the calculated transform
+    const pathElement = document.getElementById("centeredPath");
+    pathElement.setAttribute("d", originalPathData);
+    
+    // Use the transform attribute to shift the path 
+    // The translation must be in the 0-1 coordinate system.
+    pathElement.setAttribute("transform", `translate(${translateX}, ${translateY})`);
 }
 
-window.addEventListener("resize", updateScaledClipPath);
-updateScaledClipPath(); // Initial call
+window.addEventListener("resize", updateCenteredClipPath);
+updateCenteredClipPath();
 
   </script>
 
